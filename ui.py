@@ -25,7 +25,7 @@ def choose_pic():
     path = filedialog.askopenfilename()
     print(path)
 
-    if path is not '':
+    if path != '':
         # 生成人脸识别类，并初始化
         my_face_rec = face_rec()
 
@@ -41,7 +41,7 @@ def choose_pic():
 def choose_video():
     path = filedialog.askopenfilename()
 
-    if path is not '':
+    if path != '':
         # 生成人脸识别类，并初始化
         my_face_rec = face_rec()
 

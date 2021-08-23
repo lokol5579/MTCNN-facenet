@@ -24,7 +24,7 @@ class face_rec():
         input_shape = [160,160,3]
         self.facenet_model = facenet(input_shape=input_shape)
         # 将模型保存到model_data文件夹中
-        path = './model_data/mobilenet.h5'
+        path = './model_data/ep009-loss0.214-val_loss0.419.h5'
         # 载入模型
         self.facenet_model.load_weights(path, by_name=True)
 
@@ -51,9 +51,9 @@ class face_rec():
             rectangles = self.mtcnn_model.detectFace(image, self.threshold)
             # 转化成正方形，便于传入facenet
             rectangles = utils.rect2square(np.array(rectangles))
+
             # 取最好的框
             rectangle = rectangles[0]
-
             # 五个标记点全部减去人脸左上角的坐标,得到人脸上五个特征点相对于人脸左上角的相对坐标,这些坐标全部除以原有人脸框的宽度,*160,因为facenet输入是160*160
             landmark = (np.reshape(rectangle[5:15], (5, 2)) -
                         np.array([int(rectangle[0]), int(rectangle[1])])) / (rectangle[3] - rectangle[1]) * 160
@@ -64,6 +64,10 @@ class face_rec():
             crop_image = cv2.resize(crop_image, (160, 160))
             # 通过landmark实现人脸对齐
             new_image, temp = utils.Alignment_1(crop_image, landmark)
+
+            # cv2.imshow("img",new_image)
+            # cv2.waitKey(0)
+
             new_image = np.expand_dims(new_image, 0)
 
             # 对新图片计算编码，存储到face_codes中，
@@ -127,7 +131,7 @@ class face_rec():
             best_position = np.argmin(face_distances)
 
             # 相似度很高，则判定为比对成功
-            if scores[best_position] < 1.0:
+            if scores[best_position] < 0.8:
                 # 更新name
                 name = self.face_names[best_position]
             face_names.append(name)
@@ -180,8 +184,12 @@ class emotion_rec():
     #情绪识别
     def recognize(self, face):
         emotion_window = []
-        face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
-        gray_face = self.preprocess_input(face)
+        gray_face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
+        gray_face = self.preprocess_input(gray_face)
+
+        # cv2.imshow("copy_img",cv2.resize(gray_face, (128,128)))
+        # cv2.waitKey(0)
+
         gray_face = np.expand_dims(gray_face, 0)
         gray_face = np.expand_dims(gray_face, -1)
         emotion_prediction = self.emotion_model.predict(gray_face)

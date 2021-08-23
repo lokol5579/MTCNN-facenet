@@ -139,6 +139,7 @@ def create_Onet(weight_path):
 
     model = Model([input], [classifier, bbox_regress, landmark_regress])
     model.load_weights(weight_path, by_name=True)
+    # model.summary()
 
     return model
 
@@ -177,6 +178,10 @@ class mtcnn():
             # 把原图resize成缩放后的图片
             scale_img = cv2.resize(copy_img, (ws, hs))
             inputs = scale_img.reshape(1, *scale_img.shape)
+
+            # cv2.imshow("scale_img",scale_img)
+            # cv2.waitKey(0)
+
             # 利用PNet进行预测
             ouput = self.Pnet.predict(inputs)
             out.append(ouput)
@@ -198,11 +203,26 @@ class mtcnn():
                                                 threshold[0])
             rectangles.extend(rectangle)
 
-        # for i in range(len(rectangles)):
+        # for i in range(0, len(rectangles), 4):
         #     bbox = rectangles[i]
-        #     crop_img = img[int(bbox[1]):int(bbox[3]),int(bbox[0]):int(bbox[2])]
+        #     crop_img_1 = img[int(bbox[1]):int(bbox[3]),int(bbox[0]):int(bbox[2])]
+        #     crop_img_1 = cv2.resize(crop_img_1, (64, 64))
+        #     bbox = rectangles[i+1]
+        #     crop_img_2 = img[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
+        #     crop_img_2 = cv2.resize(crop_img_2, (64, 64))
+        #     bbox = rectangles[i+2]
+        #     crop_img_3 = img[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
+        #     crop_img_3 = cv2.resize(crop_img_3, (64, 64))
+        #     bbox = rectangles[i+3]
+        #     crop_img_4 = img[int(bbox[1]):int(bbox[3]), int(bbox[0]):int(bbox[2])]
+        #     crop_img_4 = cv2.resize(crop_img_4, (64, 64))
+        #     crop_img_1  = np.hstack((crop_img_1, crop_img_2)) #水平拼接
+        #     crop_img_2  = np.hstack((crop_img_3, crop_img_4)) #水平拼接
+        #
+        #     vmerge = np.vstack((crop_img_1, crop_img_2))  # 垂直拼接
+        #
         #     if bbox[3]-bbox[1]>80:
-        #         cv2.imshow("crop_img",crop_img)
+        #         cv2.imshow("crop_img",vmerge)
         #         cv2.waitKey(0)
         # 进行非极大抑制
         rectangles = utils.NMS(rectangles, 0.7)
@@ -237,6 +257,13 @@ class mtcnn():
         if len(rectangles) == 0:
             return rectangles
 
+        # bbox = rectangles[0]
+        # crop_img_1 = img[int(bbox[1]):int(bbox[3]),int(bbox[0]):int(bbox[2])]
+        #
+        # if bbox[3]-bbox[1]>80:
+        #     cv2.imshow("crop_img",crop_img_1)
+        #     cv2.waitKey(0)
+
         # -----------------------------#
         #   计算人脸框
         #   onet部分
@@ -256,4 +283,12 @@ class mtcnn():
         pts_prob = output[2]
         # 筛选
         rectangles = utils.filter_face_48net(cls_prob, roi_prob, pts_prob, rectangles, origin_w, origin_h, threshold[2])
+
+        # bbox = rectangles[0]
+        # crop_img_1 = img[int(bbox[1]):int(bbox[3]),int(bbox[0]):int(bbox[2])]
+        #
+        # if bbox[3]-bbox[1]>80:
+        #     cv2.imshow("crop_img",crop_img_1)
+        #     cv2.waitKey(0)
+
         return rectangles

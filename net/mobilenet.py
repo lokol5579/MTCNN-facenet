@@ -55,9 +55,9 @@ def MobileNet(inputs, embedding=128, dropout_keep_prob=0.4, depth_multiplier=1, 
     x, layer_num = conv_ds(x, pointwise_conv_filters=1024, depth_multiplier=depth_multiplier, strides=2, layer_num=layer_num)
     x, layer_num = conv_ds(x, pointwise_conv_filters=1024, depth_multiplier=depth_multiplier, layer_num=layer_num)
 
-    # cbam = cbam_block(x)
-    # x = Concatenate(axis=3, name="attention_concatenate_%d"%layer_num)([x, cbam])
-    # layer_num = layer_num + 1
+    cbam = cbam_block(x)
+    x = Concatenate(axis=3, name="attention_concatenate_%d"%layer_num)([x, cbam])
+    layer_num = layer_num + 1
 
     # 1024 Pooling
     x = GlobalAveragePooling2D(name="global_average_pooling_%d"%layer_num)(x)
