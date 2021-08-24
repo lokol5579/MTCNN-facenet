@@ -131,7 +131,7 @@ class face_rec():
             best_position = np.argmin(face_distances)
 
             # 相似度很高，则判定为比对成功
-            if scores[best_position] < 0.8:
+            if scores[best_position] < 0.85:
                 # 更新name
                 name = self.face_names[best_position]
             face_names.append(name)
